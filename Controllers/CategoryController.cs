@@ -1,5 +1,6 @@
 ﻿using Blog.Data;
 using Blog.Models;
+using Blog.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,17 +23,22 @@ namespace Blog.Controllers
             
             if (category == null)
                 return NotFound();
-            
+
             return Ok(category);
         }
 
         [HttpPost("v1/categories")]
         public async Task<IActionResult> PostAsync(
-            [FromBody] Category category,
+            [FromBody] EditorCategoryViewModel categoryViewModel,
             [FromServices] BlogDataContext context)
         {
             try
             {
+                var category = new Category
+                {
+                    Name = categoryViewModel.Name,
+                    Slug = categoryViewModel.Slug.ToLower()
+                };
                 await context.Categories.AddAsync(category);
                 await context.SaveChangesAsync();
 
@@ -51,23 +57,40 @@ namespace Blog.Controllers
         [HttpPut("v1/categories/{id:int}")]
         public async Task<IActionResult> PutAsync(
             [FromRoute] int id,
-            [FromBody] Category categoryBody,
+            [FromBody] EditorCategoryViewModel categoryViewModel,
             [FromServices] BlogDataContext context)
         {
-            var categoryToUpdate = await context
-                .Categories
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                var categoryToUpdate = await context
+                    .Categories
+                    .FirstOrDefaultAsync(c => c.Id == id);
             
-            if (categoryToUpdate == null)
-                return NotFound();
+                if (categoryToUpdate == null)
+                    return NotFound();
+
+                var category = new Category()
+                {
+                    Name = categoryViewModel.Name,
+                    Slug = categoryViewModel.Slug.ToLower()
+                };
+
+                categoryToUpdate.Name = category.Name;
+                categoryToUpdate.Slug = category.Slug;
+
+                context.Categories.Update(categoryToUpdate);
+                await context.SaveChangesAsync();
             
-            categoryToUpdate.Name = categoryBody.Name;
-            categoryToUpdate.Slug = categoryBody.Slug;
-             
-            context.Categories.Update(categoryToUpdate);
-            await context.SaveChangesAsync();
-            
-            return Ok(categoryToUpdate);
+                return Ok(categoryToUpdate);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Unable to update category");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("v1/categories/{id:int}")]
@@ -75,17 +98,29 @@ namespace Blog.Controllers
             [FromRoute] int id,
             [FromServices] BlogDataContext context)
         {
-            var category = await context
-                .Categories
-                .FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (category == null)
-                return NotFound();
-            
-            context.Categories.Remove(category);
-            await context.SaveChangesAsync();
-            
-            return Ok(category);
+            try
+            {
+                var category = await context
+                    .Categories
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
+                if (category == null)
+                    return NotFound();
+
+                context.Categories.Remove(category);
+                await context.SaveChangesAsync();
+
+                return Ok(category);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Unable to delete category");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+
         }
     }
 }

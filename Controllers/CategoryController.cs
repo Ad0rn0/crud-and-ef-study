@@ -18,6 +18,10 @@ namespace Blog.Controllers
                 var categories = await context.Categories.ToListAsync();
                 return Ok(new ResultViewModel<List<Category>>(categories));
             }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResultViewModel<List<Category>>("Database Update Error"));
+            }
             catch
             {
                 return StatusCode(500, new ResultViewModel<List<Category>>("Internal server errror"));
@@ -29,12 +33,23 @@ namespace Blog.Controllers
             [FromRoute] int id,
             [FromServices] BlogDataContext context)
         {
-            var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (category == null)
-                return NotFound();
+            try
+            {
+                var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
-            return Ok(category);
+                if (category == null)
+                    return NotFound();
+
+                return Ok(category);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResultViewModel<List<Category>>("Database Update Error"));
+            }
+            catch
+            {
+                return StatusCode(500, new ResultViewModel<List<Category>>("Internal server error"));
+            }
         }
 
         [HttpPost("v1/categories")]

@@ -12,7 +12,17 @@ namespace Blog.Controllers
         [HttpGet("v1/categories")]
         public async Task<IActionResult> GetAsync(
             [FromServices] BlogDataContext context)
-                => Ok(await context.Categories.ToListAsync());
+        {
+            try
+            {
+                var categories = await context.Categories.ToListAsync();
+                return Ok(new ResultViewModel<List<Category>>(categories));
+            }
+            catch
+            {
+                return StatusCode(500, new ResultViewModel<List<Category>>("Internal server errror"));
+            }
+        }
 
         [HttpGet("v1/categories/{id:int}")]
         public async Task<IActionResult> GetByIdAsync(
@@ -32,6 +42,9 @@ namespace Blog.Controllers
             [FromBody] EditorCategoryViewModel categoryViewModel,
             [FromServices] BlogDataContext context)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            
             try
             {
                 var category = new Category

@@ -1,4 +1,5 @@
 ﻿using Blog.Data;
+using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -38,9 +39,9 @@ namespace Blog.Controllers
                 var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
                 if (category == null)
-                    return NotFound();
+                    return StatusCode(404, new ResultViewModel<List<Category>>("Category not found"));
 
-                return Ok(category);
+                return Ok(new ResultViewModel<Category>(category));
             }
             catch (DbUpdateException)
             {
@@ -58,7 +59,7 @@ namespace Blog.Controllers
             [FromServices] BlogDataContext context)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return StatusCode(400, new ResultViewModel<List<Category>>(ModelState.GetErrors()));
             
             try
             {
@@ -69,16 +70,16 @@ namespace Blog.Controllers
                 };
                 await context.Categories.AddAsync(category);
                 await context.SaveChangesAsync();
-
-                return Created($"v1/categories/{category.Id}", category);
+                
+                return Created($"v1/categories/{category.Id}", new ResultViewModel<Category>(category));
             }
             catch (DbUpdateException)
             {
-                return StatusCode(500, "Unable to save category");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Database Update Error"));
             }
             catch
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Internal server error"));
             }
         }
 
@@ -95,7 +96,7 @@ namespace Blog.Controllers
                     .FirstOrDefaultAsync(c => c.Id == id);
             
                 if (categoryToUpdate == null)
-                    return NotFound();
+                    return StatusCode(404, new ResultViewModel<List<Category>>("Category not found"));
 
                 var category = new Category()
                 {
@@ -109,15 +110,15 @@ namespace Blog.Controllers
                 context.Categories.Update(categoryToUpdate);
                 await context.SaveChangesAsync();
             
-                return Ok(categoryToUpdate);
+                return Ok(new ResultViewModel<Category>(categoryToUpdate));
             }
             catch (DbUpdateException)
             {
-                return StatusCode(500, "Unable to update category");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Database Update Error"));
             }
             catch (Exception)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Internal server error"));
             }
         }
 
@@ -133,22 +134,21 @@ namespace Blog.Controllers
                     .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (category == null)
-                    return NotFound();
+                    return StatusCode(404, new ResultViewModel<List<Category>>("Category not found"));
 
                 context.Categories.Remove(category);
                 await context.SaveChangesAsync();
 
-                return Ok(category);
+                return Ok(new ResultViewModel<Category>(category));
             }
             catch (DbUpdateException)
             {
-                return StatusCode(500, "Unable to delete category");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Database Update Error"));
             }
             catch (Exception)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new ResultViewModel<List<Category>>("Internal server error"));
             }
-
         }
     }
 }

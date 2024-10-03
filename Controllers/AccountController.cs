@@ -38,6 +38,9 @@ public class AccountController : ControllerBase
                 Email = model.Email,
                 Slug = model.Email.Replace('@', '-').Replace('.', '-')
             };
+            
+            if (await context.Users.AnyAsync(x => x.Email == model.Email))
+                return BadRequest(new ResultViewModel<string>($"Email {model.Email} already exists"));
 
             var password = PasswordGenerator.Generate(25);
             user.PasswordHash = PasswordHasher.Hash(password);
@@ -63,11 +66,33 @@ public class AccountController : ControllerBase
     }
     
     [HttpPost("v1/accounts/login")]
-    public IActionResult Login(
-        [FromServices] TokenService tokenService)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginViewModel model,
+        [FromServices] TokenService tokenService,
+        [FromServices] BlogDataContext context)
     {
-        var token = tokenService.GenerateToken(null);
+        if (!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
+        
+        var user = await context
+            .Users
+            .AsNoTracking()
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u => u.Email == model.Email);
+        if (user == null)
+            return StatusCode(401, new ResultViewModel<string>($"User or password is incorrect. "));
+        
+        if (!PasswordHasher.Verify(user.PasswordHash, model.Password))
+            return StatusCode(401, new ResultViewModel<string>("User or password is incorrect."));
 
-        return Ok(token);
+        try
+        {
+            var token = tokenService.GenerateToken(user);
+            return Ok(new ResultViewModel<string>(data: token));
+        }
+        catch
+        {
+            return StatusCode(500, new ResultViewModel<string>($"Internal Server Error."));
+        }
     }
 }

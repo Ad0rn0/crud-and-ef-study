@@ -10,18 +10,18 @@ public class EmailServices
         string toEmail,
         string subject,
         string body,
-        string fromName = "Equipe balta.io",
-        string fromEmail = "email@balta.io")
+        string fromName = "Equipe Login",
+        string fromEmail = "ad0rn0code@gmail.com")
     {
-        //ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
-
-        var smtpClient = new SmtpClient(Configuration.Smtp.Host, Configuration.Smtp.Port);
-        
-        smtpClient.Credentials = new NetworkCredential(Configuration.Smtp.UserName, Configuration.Smtp.Password);
-        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-        smtpClient.EnableSsl = true;
+        var client = new SmtpClient(Configuration.Smtp.Host, Configuration.Smtp.Port)
+        {
+            Credentials = new NetworkCredential(Configuration.Smtp.UserName, Configuration.Smtp.Password),
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network
+        };
 
         var mail = new MailMessage();
+        
         mail.From = new MailAddress(fromEmail, fromName);
         mail.To.Add(new MailAddress(toEmail, toName));
         mail.Subject = subject;
@@ -30,13 +30,12 @@ public class EmailServices
 
         try
         {
-            smtpClient.Send(mail);
+            client.Send(mail);
             return true;
         }
-        catch (Exception ex)
+        catch
         {
-            return ex.Message.Contains("An error occured");
+            return false;
         }
-        
     }
 }

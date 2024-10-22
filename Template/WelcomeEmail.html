@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao nosso Blog!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
+            font-size: 16px;
+        }
+        .welcome-text {
+            font-size: 18px;
+            color: #000;
+        }
+        .password-box {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Bem-vindo(a) ao nosso Blog!</h1>
+    <p class="welcome-text">Olá, <strong>{{UserName}}</strong>,</p>
+    <p>Estamos muito felizes em tê-lo(a) conosco. Agora você faz parte de uma comunidade incrível, onde poderá acompanhar e compartilhar conteúdos exclusivos.</p>
+    <p>Aqui está sua senha de acesso para entrar na plataforma:</p>
+    <div class="password-box">{{UserPassword}}</div>
+    <p>Use essa senha para fazer login no nosso site. Recomendamos que altere sua senha após o primeiro login para garantir a segurança da sua conta.</p>
+    <p><a href="https://localhost:7155" class="btn">Acessar Blog</a></p>
+    <div class="footer">
+        <p>Se você tiver alguma dúvida, não hesite em nos contatar.</p>
+        <p>Atenciosamente,<br>Equipe do Blog</p>
+    </div>
+</div>
+</body>
+</html>

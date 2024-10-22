@@ -18,4 +18,14 @@
     <PackageReference Include="SecureIdentity" Version="1.0.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Template\WelcomeEmail.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>

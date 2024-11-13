@@ -9,9 +9,14 @@ namespace Blog.Controllers
     {
         [HttpGet("")]
         [ApiKey]
-        public IActionResult Get()
+        public IActionResult Get(
+            [FromServices] IConfiguration config)
         {
-            return Ok();
+            var environment = config.GetValue<string>("Environment");
+            return Ok( new
+            {
+                environment = environment
+            });
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Blog.Controllers
     public class HomeController : ControllerBase
     {
         [HttpGet("")]
-        [ApiKey]
+        //[ApiKey]
         public IActionResult Get(
             [FromServices] IConfiguration config)
         {
@@ -18,5 +18,5 @@ namespace Blog.Controllers
                 environment = environment
             });
         }
-    }
+    } 
 }
